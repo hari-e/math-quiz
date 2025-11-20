@@ -1,0 +1,550 @@
+<!doctype html>
+<html lang="id">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kuis Pengetahuan</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+    body {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      height: 100%;
+      overflow-x: hidden;
+    }
+    
+    html {
+      height: 100%;
+    }
+    
+    * {
+      box-sizing: border-box;
+    }
+    
+    .container {
+      min-height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    
+    .quiz-card {
+      width: 100%;
+      max-width: 600px;
+      border-radius: 20px;
+      padding: 2.5rem;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    }
+    
+    .quiz-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    
+    .quiz-title {
+      font-size: 2.5rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+    }
+    
+    .quiz-subtitle {
+      font-size: 1.125rem;
+      opacity: 0.9;
+    }
+    
+    .progress-container {
+      margin-bottom: 2rem;
+    }
+    
+    .progress-text {
+      font-size: 0.875rem;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+    
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+    
+    .question-container {
+      margin-bottom: 2rem;
+    }
+    
+    .question-text {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      line-height: 1.4;
+    }
+    
+    .options-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    
+    .option-button {
+      width: 100%;
+      padding: 1.25rem;
+      border: 2px solid transparent;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: left;
+    }
+    
+    .option-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .option-button.selected {
+      border-width: 3px;
+    }
+    
+    .option-button.correct {
+      border-width: 3px;
+    }
+    
+    .option-button.incorrect {
+      opacity: 0.5;
+    }
+    
+    .action-button {
+      width: 100%;
+      padding: 1rem 2rem;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.125rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-top: 1rem;
+    }
+    
+    .action-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+    
+    .action-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .result-container {
+      text-align: center;
+    }
+    
+    .result-score {
+      font-size: 4rem;
+      font-weight: bold;
+      margin: 1rem 0;
+    }
+    
+    .result-message {
+      font-size: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    
+    .result-details {
+      font-size: 1.125rem;
+      margin-bottom: 2rem;
+      opacity: 0.9;
+    }
+    
+    .emoji {
+      font-size: 5rem;
+      margin-bottom: 1rem;
+    }
+    
+    .hidden {
+      display: none;
+    }
+    
+    @media (max-width: 640px) {
+      .container {
+        padding: 1rem;
+      }
+      
+      .quiz-card {
+        padding: 1.5rem;
+      }
+      
+      .quiz-title {
+        font-size: 2rem;
+      }
+      
+      .question-text {
+        font-size: 1.25rem;
+      }
+      
+      .option-button {
+        padding: 1rem;
+      }
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body>
+  <div class="container" id="app"><!-- Welcome Screen -->
+   <div class="quiz-card" id="welcomeScreen">
+    <div class="quiz-header">
+     <div class="emoji">
+      🧠
+     </div>
+     <h1 class="quiz-title" id="quizTitle">Kuis Pengetahuan Umum</h1>
+     <p class="quiz-subtitle" id="welcomeMessage">Uji pengetahuanmu dengan 5 pertanyaan menarik!</p>
+    </div><button class="action-button" id="startButton">Mulai Kuis</button>
+   </div><!-- Quiz Screen -->
+   <div class="quiz-card hidden" id="quizScreen">
+    <div class="progress-container">
+     <div class="progress-text" id="progressText">
+      Pertanyaan 1 dari 5
+     </div>
+     <div class="progress-bar">
+      <div class="progress-fill" id="progressFill" style="width: 20%"></div>
+     </div>
+    </div>
+    <div class="question-container">
+     <h2 class="question-text" id="questionText"></h2>
+     <div class="options-container" id="optionsContainer"></div>
+    </div><button class="action-button hidden" id="nextButton">Lanjut</button>
+   </div><!-- Result Screen -->
+   <div class="quiz-card hidden" id="resultScreen">
+    <div class="result-container">
+     <div class="emoji" id="resultEmoji">
+      🎉
+     </div>
+     <h2 class="result-message" id="resultMessage">Luar Biasa!</h2>
+     <div class="result-score" id="resultScore">
+      5/5
+     </div>
+     <p class="result-details" id="resultDetails">Kamu menjawab semua pertanyaan dengan benar!</p><button class="action-button" id="restartButton">Coba Lagi</button>
+    </div>
+   </div>
+  </div>
+  <script>
+    const defaultConfig = {
+      background_color: "#667eea",
+      card_color: "#ffffff",
+      text_color: "#1a202c",
+      primary_action_color: "#5a67d8",
+      secondary_action_color: "#48bb78",
+      quiz_title: "Kuis Pengetahuan Umum",
+      welcome_message: "Uji pengetahuanmu dengan 5 pertanyaan menarik!",
+      start_button_text: "Mulai Kuis",
+      next_button_text: "Lanjut",
+      finish_button_text: "Coba Lagi"
+    };
+
+    const questions = [
+      {
+        question: "Apa ibu kota Indonesia?",
+        options: ["Bandung", "Surabaya", "Jakarta", "Medan"],
+        correct: 2
+      },
+      {
+        question: "Planet mana yang paling dekat dengan Matahari?",
+        options: ["Venus", "Merkurius", "Bumi", "Mars"],
+        correct: 1
+      },
+      {
+        question: "Berapa jumlah benua di dunia?",
+        options: ["5", "6", "7", "8"],
+        correct: 2
+      },
+      {
+        question: "Siapa penemu lampu pijar?",
+        options: ["Thomas Edison", "Albert Einstein", "Isaac Newton", "Nikola Tesla"],
+        correct: 0
+      },
+      {
+        question: "Berapa hasil dari 12 × 12?",
+        options: ["124", "144", "154", "164"],
+        correct: 1
+      }
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+    let selectedAnswer = null;
+
+    const elements = {
+      welcomeScreen: document.getElementById('welcomeScreen'),
+      quizScreen: document.getElementById('quizScreen'),
+      resultScreen: document.getElementById('resultScreen'),
+      quizTitle: document.getElementById('quizTitle'),
+      welcomeMessage: document.getElementById('welcomeMessage'),
+      startButton: document.getElementById('startButton'),
+      nextButton: document.getElementById('nextButton'),
+      restartButton: document.getElementById('restartButton'),
+      progressText: document.getElementById('progressText'),
+      progressFill: document.getElementById('progressFill'),
+      questionText: document.getElementById('questionText'),
+      optionsContainer: document.getElementById('optionsContainer'),
+      resultEmoji: document.getElementById('resultEmoji'),
+      resultMessage: document.getElementById('resultMessage'),
+      resultScore: document.getElementById('resultScore'),
+      resultDetails: document.getElementById('resultDetails')
+    };
+
+    function applyStyles(config) {
+      const container = document.querySelector('.container');
+      const quizCards = document.querySelectorAll('.quiz-card');
+      const quizTitles = document.querySelectorAll('.quiz-title');
+      const texts = document.querySelectorAll('.quiz-subtitle, .question-text, .progress-text, .result-message, .result-details');
+      const progressBar = document.querySelector('.progress-bar');
+      const progressFill = document.getElementById('progressFill');
+      const actionButtons = document.querySelectorAll('.action-button');
+      
+      container.style.background = config.background_color || defaultConfig.background_color;
+      
+      quizCards.forEach(card => {
+        card.style.backgroundColor = config.card_color || defaultConfig.card_color;
+      });
+      
+      quizTitles.forEach(title => {
+        title.style.color = config.text_color || defaultConfig.text_color;
+      });
+      
+      texts.forEach(text => {
+        text.style.color = config.text_color || defaultConfig.text_color;
+      });
+      
+      progressBar.style.backgroundColor = `${config.text_color || defaultConfig.text_color}20`;
+      progressFill.style.backgroundColor = config.secondary_action_color || defaultConfig.secondary_action_color;
+      
+      actionButtons.forEach(button => {
+        button.style.backgroundColor = config.primary_action_color || defaultConfig.primary_action_color;
+        button.style.color = config.card_color || defaultConfig.card_color;
+      });
+      
+      updateOptionColors(config);
+    }
+
+    function updateOptionColors(config) {
+      const options = document.querySelectorAll('.option-button');
+      options.forEach(option => {
+        option.style.backgroundColor = `${config.text_color || defaultConfig.text_color}08`;
+        option.style.color = config.text_color || defaultConfig.text_color;
+        
+        if (option.classList.contains('selected')) {
+          option.style.borderColor = config.primary_action_color || defaultConfig.primary_action_color;
+          option.style.backgroundColor = `${config.primary_action_color || defaultConfig.primary_action_color}15`;
+        }
+        
+        if (option.classList.contains('correct')) {
+          option.style.borderColor = config.secondary_action_color || defaultConfig.secondary_action_color;
+          option.style.backgroundColor = `${config.secondary_action_color || defaultConfig.secondary_action_color}15`;
+        }
+      });
+    }
+
+    function updateContent(config) {
+      elements.quizTitle.textContent = config.quiz_title || defaultConfig.quiz_title;
+      elements.welcomeMessage.textContent = config.welcome_message || defaultConfig.welcome_message;
+      elements.startButton.textContent = config.start_button_text || defaultConfig.start_button_text;
+      elements.nextButton.textContent = config.next_button_text || defaultConfig.next_button_text;
+      elements.restartButton.textContent = config.finish_button_text || defaultConfig.finish_button_text;
+    }
+
+    async function onConfigChange(config) {
+      applyStyles(config);
+      updateContent(config);
+    }
+
+    function startQuiz() {
+      currentQuestion = 0;
+      score = 0;
+      selectedAnswer = null;
+      
+      elements.welcomeScreen.classList.add('hidden');
+      elements.quizScreen.classList.remove('hidden');
+      elements.resultScreen.classList.add('hidden');
+      
+      loadQuestion();
+    }
+
+    function loadQuestion() {
+      const question = questions[currentQuestion];
+      selectedAnswer = null;
+      
+      elements.questionText.textContent = question.question;
+      elements.progressText.textContent = `Pertanyaan ${currentQuestion + 1} dari ${questions.length}`;
+      elements.progressFill.style.width = `${((currentQuestion + 1) / questions.length) * 100}%`;
+      elements.nextButton.classList.add('hidden');
+      
+      elements.optionsContainer.innerHTML = '';
+      
+      question.options.forEach((option, index) => {
+        const button = document.createElement('button');
+        button.className = 'option-button';
+        button.textContent = option;
+        button.onclick = () => selectOption(index, button);
+        elements.optionsContainer.appendChild(button);
+      });
+      
+      updateOptionColors(window.elementSdk?.config || defaultConfig);
+    }
+
+    function selectOption(index, button) {
+      if (selectedAnswer !== null) return;
+      
+      selectedAnswer = index;
+      const question = questions[currentQuestion];
+      const allButtons = document.querySelectorAll('.option-button');
+      
+      allButtons.forEach((btn, i) => {
+        if (i === question.correct) {
+          btn.classList.add('correct');
+        } else if (i === index && i !== question.correct) {
+          btn.classList.add('selected');
+          btn.classList.add('incorrect');
+        } else {
+          btn.classList.add('incorrect');
+        }
+        btn.style.cursor = 'not-allowed';
+      });
+      
+      if (index === question.correct) {
+        score++;
+      }
+      
+      updateOptionColors(window.elementSdk?.config || defaultConfig);
+      
+      elements.nextButton.classList.remove('hidden');
+      elements.nextButton.textContent = currentQuestion === questions.length - 1 ? 
+        (window.elementSdk?.config?.finish_button_text || defaultConfig.finish_button_text) : 
+        (window.elementSdk?.config?.next_button_text || defaultConfig.next_button_text);
+    }
+
+    function nextQuestion() {
+      currentQuestion++;
+      
+      if (currentQuestion < questions.length) {
+        loadQuestion();
+      } else {
+        showResults();
+      }
+    }
+
+    function showResults() {
+      elements.quizScreen.classList.add('hidden');
+      elements.resultScreen.classList.remove('hidden');
+      
+      const percentage = (score / questions.length) * 100;
+      
+      elements.resultScore.textContent = `${score}/${questions.length}`;
+      
+      if (percentage === 100) {
+        elements.resultEmoji.textContent = '🏆';
+        elements.resultMessage.textContent = 'Sempurna!';
+        elements.resultDetails.textContent = 'Kamu menjawab semua pertanyaan dengan benar!';
+      } else if (percentage >= 80) {
+        elements.resultEmoji.textContent = '🎉';
+        elements.resultMessage.textContent = 'Luar Biasa!';
+        elements.resultDetails.textContent = 'Kamu hampir sempurna! Teruskan usaha yang baik!';
+      } else if (percentage >= 60) {
+        elements.resultEmoji.textContent = '😊';
+        elements.resultMessage.textContent = 'Bagus!';
+        elements.resultDetails.textContent = 'Skor yang bagus! Masih ada ruang untuk berkembang!';
+      } else if (percentage >= 40) {
+        elements.resultEmoji.textContent = '🤔';
+        elements.resultMessage.textContent = 'Cukup Baik!';
+        elements.resultDetails.textContent = 'Tidak buruk! Coba lagi untuk skor yang lebih baik!';
+      } else {
+        elements.resultEmoji.textContent = '💪';
+        elements.resultMessage.textContent = 'Tetap Semangat!';
+        elements.resultDetails.textContent = 'Jangan menyerah! Coba lagi dan kamu pasti bisa lebih baik!';
+      }
+    }
+
+    function restartQuiz() {
+      elements.resultScreen.classList.add('hidden');
+      elements.welcomeScreen.classList.remove('hidden');
+    }
+
+    elements.startButton.addEventListener('click', startQuiz);
+    elements.nextButton.addEventListener('click', nextQuestion);
+    elements.restartButton.addEventListener('click', restartQuiz);
+
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange,
+        mapToCapabilities: (config) => ({
+          recolorables: [
+            {
+              get: () => config.background_color || defaultConfig.background_color,
+              set: (value) => {
+                config.background_color = value;
+                window.elementSdk.setConfig({ background_color: value });
+              }
+            },
+            {
+              get: () => config.card_color || defaultConfig.card_color,
+              set: (value) => {
+                config.card_color = value;
+                window.elementSdk.setConfig({ card_color: value });
+              }
+            },
+            {
+              get: () => config.text_color || defaultConfig.text_color,
+              set: (value) => {
+                config.text_color = value;
+                window.elementSdk.setConfig({ text_color: value });
+              }
+            },
+            {
+              get: () => config.primary_action_color || defaultConfig.primary_action_color,
+              set: (value) => {
+                config.primary_action_color = value;
+                window.elementSdk.setConfig({ primary_action_color: value });
+              }
+            },
+            {
+              get: () => config.secondary_action_color || defaultConfig.secondary_action_color,
+              set: (value) => {
+                config.secondary_action_color = value;
+                window.elementSdk.setConfig({ secondary_action_color: value });
+              }
+            }
+          ],
+          borderables: [],
+          fontEditable: undefined,
+          fontSizeable: undefined
+        }),
+        mapToEditPanelValues: (config) => new Map([
+          ["quiz_title", config.quiz_title || defaultConfig.quiz_title],
+          ["welcome_message", config.welcome_message || defaultConfig.welcome_message],
+          ["start_button_text", config.start_button_text || defaultConfig.start_button_text],
+          ["next_button_text", config.next_button_text || defaultConfig.next_button_text],
+          ["finish_button_text", config.finish_button_text || defaultConfig.finish_button_text]
+        ])
+      });
+    }
+
+    applyStyles(defaultConfig);
+    updateContent(defaultConfig);
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a0d71a3d5168356',t:'MTc2MzUzMTU3Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

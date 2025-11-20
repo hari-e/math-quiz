@@ -1,0 +1,682 @@
+<!doctype html>
+<html lang="id">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kuis Pengetahuan</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100%;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            background: white;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        h1 {
+            font-size: 48px;
+            color: #2d3748;
+            margin-bottom: 15px;
+        }
+        
+        .subtitle {
+            font-size: 20px;
+            color: #718096;
+        }
+        
+        .illustration {
+            margin: 30px 0;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .icon-card {
+            background: #f7fafc;
+            padding: 30px;
+            border-radius: 15px;
+            transition: transform 0.3s ease;
+        }
+        
+        .icon-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .icon-card span {
+            font-size: 60px;
+        }
+        
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .menu-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .menu-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        }
+        
+        .menu-card.geography {
+            border-top: 5px solid #3182ce;
+        }
+        
+        .menu-card.math {
+            border-top: 5px solid #38a169;
+        }
+        
+        .menu-card.english {
+            border-top: 5px solid #e53e3e;
+        }
+        
+        .menu-icon {
+            font-size: 80px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .menu-title {
+            font-size: 32px;
+            text-align: center;
+            color: #2d3748;
+            margin-bottom: 15px;
+        }
+        
+        .menu-desc {
+            font-size: 16px;
+            color: #718096;
+            text-align: center;
+        }
+        
+        .content-page {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .content-page.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .content-header {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .content-header h2 {
+            font-size: 36px;
+            color: #2d3748;
+            margin-bottom: 15px;
+        }
+        
+        .content-header p {
+            font-size: 18px;
+            color: #718096;
+            line-height: 1.6;
+        }
+        
+        .examples-section {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .examples-section h3 {
+            font-size: 28px;
+            color: #2d3748;
+            margin-bottom: 20px;
+        }
+        
+        .example-list {
+            display: grid;
+            gap: 15px;
+        }
+        
+        .example-item {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .example-item strong {
+            color: #2d3748;
+            font-size: 18px;
+        }
+        
+        .quiz-section {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .quiz-section h3 {
+            font-size: 28px;
+            color: #2d3748;
+            margin-bottom: 25px;
+        }
+        
+        .question {
+            margin-bottom: 30px;
+            padding: 25px;
+            background: #f7fafc;
+            border-radius: 15px;
+        }
+        
+        .question-text {
+            font-size: 20px;
+            color: #2d3748;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .options {
+            display: grid;
+            gap: 12px;
+        }
+        
+        .option {
+            padding: 15px 20px;
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+        
+        .option:hover {
+            background: #edf2f7;
+            border-color: #667eea;
+        }
+        
+        .option.selected {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .option.correct {
+            background: #38a169;
+            color: white;
+            border-color: #38a169;
+        }
+        
+        .option.incorrect {
+            background: #e53e3e;
+            color: white;
+            border-color: #e53e3e;
+        }
+        
+        .submit-btn {
+            background: #667eea;
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+        
+        .submit-btn:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+        }
+        
+        .submit-btn:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .quiz-result {
+            display: none;
+            padding: 25px;
+            background: #f7fafc;
+            border-radius: 15px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .quiz-result.show {
+            display: block;
+        }
+        
+        .quiz-result h4 {
+            font-size: 24px;
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+        
+        .quiz-result p {
+            font-size: 18px;
+            color: #718096;
+        }
+        
+        .back-btn {
+            background: white;
+            color: #667eea;
+            padding: 15px 30px;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 25px;
+            display: inline-block;
+        }
+        
+        .back-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateX(-5px);
+        }
+        
+        footer {
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
+            text-align: center;
+            margin-top: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        footer p {
+            color: #718096;
+            font-size: 16px;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 36px;
+            }
+            
+            .menu-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .illustration {
+                gap: 15px;
+            }
+            
+            .icon-card span {
+                font-size: 40px;
+            }
+        }
+    </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body>
+  <div class="container">
+   <div id="home-page">
+    <header>
+     <h1 id="main-title">Kuis Pengetahuan</h1>
+     <p class="subtitle" id="welcome-text">Uji pengetahuan Anda dengan berbagai mata pelajaran menarik!</p>
+     <div class="illustration">
+      <div class="icon-card"><span>🌍</span>
+      </div>
+      <div class="icon-card"><span>➕</span>
+      </div>
+      <div class="icon-card"><span>📚</span>
+      </div>
+     </div>
+    </header>
+    <div class="menu-grid">
+     <div class="menu-card geography" onclick="showPage('geography')">
+      <div class="menu-icon">
+       🌏
+      </div>
+      <h2 class="menu-title" id="geography-title">Geografi</h2>
+      <p class="menu-desc">Jelajahi dunia dan pelajari tentang negara, ibu kota, dan benua</p>
+     </div>
+     <div class="menu-card math" onclick="showPage('math')">
+      <div class="menu-icon">
+       🔢
+      </div>
+      <h2 class="menu-title" id="math-title">Matematika</h2>
+      <p class="menu-desc">Asah kemampuan berhitung dengan penjumlahan, pengurangan, dan perkalian</p>
+     </div>
+     <div class="menu-card english" onclick="showPage('english')">
+      <div class="menu-icon">
+       🇬🇧
+      </div>
+      <h2 class="menu-title" id="english-title">Bahasa Inggris</h2>
+      <p class="menu-desc">Tingkatkan kosakata bahasa Inggris dengan kata-kata sehari-hari</p>
+     </div>
+    </div>
+   </div>
+   <div id="geography-page" class="content-page"><button class="back-btn" onclick="showPage('home')">← Kembali ke Beranda</button>
+    <div class="content-header">
+     <h2>🌏 Geografi</h2>
+     <p>Geografi adalah ilmu yang mempelajari tentang permukaan bumi, termasuk negara-negara, ibu kota, benua, lautan, dan fitur geografis lainnya. Mari belajar tentang dunia di sekitar kita!</p>
+    </div>
+    <div class="examples-section">
+     <h3>📍 Contoh Pengetahuan Geografi</h3>
+     <div class="example-list">
+      <div class="example-item"><strong>Ibu Kota Indonesia:</strong> Jakarta
+      </div>
+      <div class="example-item"><strong>Benua Terbesar:</strong> Asia
+      </div>
+      <div class="example-item"><strong>Negara Dengan Jumlah Penduduk Terbanyak:</strong> Tiongkok
+      </div>
+      <div class="example-item"><strong>Gunung Tertinggi di Dunia:</strong> Gunung Everest (8.848 meter)
+      </div>
+      <div class="example-item"><strong>Samudra Terluas:</strong> Samudra Pasifik
+      </div>
+     </div>
+    </div>
+    <div class="quiz-section">
+     <h3>🎯 Mini Kuis Geografi</h3>
+     <div id="geography-quiz"></div><button class="submit-btn" onclick="submitQuiz('geography')">Kirim Jawaban</button>
+     <div class="quiz-result" id="geography-result"></div>
+    </div>
+   </div>
+   <div id="math-page" class="content-page"><button class="back-btn" onclick="showPage('home')">← Kembali ke Beranda</button>
+    <div class="content-header">
+     <h2>🔢 Matematika</h2>
+     <p>Matematika adalah ilmu tentang angka, perhitungan, dan logika. Dengan matematika, kita bisa menyelesaikan masalah sehari-hari seperti menghitung uang, mengukur jarak, dan banyak lagi!</p>
+    </div>
+    <div class="examples-section">
+     <h3>➕ Contoh Operasi Matematika</h3>
+     <div class="example-list">
+      <div class="example-item"><strong>Penjumlahan:</strong> 15 + 27 = 42
+      </div>
+      <div class="example-item"><strong>Pengurangan:</strong> 50 - 18 = 32
+      </div>
+      <div class="example-item"><strong>Perkalian:</strong> 8 × 7 = 56
+      </div>
+      <div class="example-item"><strong>Pembagian:</strong> 72 ÷ 9 = 8
+      </div>
+      <div class="example-item"><strong>Bilangan Prima:</strong> 2, 3, 5, 7, 11, 13, 17...
+      </div>
+     </div>
+    </div>
+    <div class="quiz-section">
+     <h3>🎯 Mini Kuis Matematika</h3>
+     <div id="math-quiz"></div><button class="submit-btn" onclick="submitQuiz('math')">Kirim Jawaban</button>
+     <div class="quiz-result" id="math-result"></div>
+    </div>
+   </div>
+   <div id="english-page" class="content-page"><button class="back-btn" onclick="showPage('home')">← Kembali ke Beranda</button>
+    <div class="content-header">
+     <h2>🇬🇧 Bahasa Inggris</h2>
+     <p>Bahasa Inggris adalah bahasa internasional yang digunakan di seluruh dunia. Dengan belajar bahasa Inggris, kita bisa berkomunikasi dengan orang dari berbagai negara dan membuka banyak peluang!</p>
+    </div>
+    <div class="examples-section">
+     <h3>📖 Contoh Kosakata Bahasa Inggris</h3>
+     <div class="example-list">
+      <div class="example-item"><strong>Apple:</strong> Apel
+      </div>
+      <div class="example-item"><strong>Book:</strong> Buku
+      </div>
+      <div class="example-item"><strong>Cat:</strong> Kucing
+      </div>
+      <div class="example-item"><strong>House:</strong> Rumah
+      </div>
+      <div class="example-item"><strong>Water:</strong> Air
+      </div>
+      <div class="example-item"><strong>Friend:</strong> Teman
+      </div>
+     </div>
+    </div>
+    <div class="quiz-section">
+     <h3>🎯 Mini Kuis Bahasa Inggris</h3>
+     <div id="english-quiz"></div><button class="submit-btn" onclick="submitQuiz('english')">Kirim Jawaban</button>
+     <div class="quiz-result" id="english-result"></div>
+    </div>
+   </div>
+   <footer>
+    <p id="footer-text">Website Kuis Pengetahuan © 2024</p>
+   </footer>
+  </div>
+  <script>
+        const defaultConfig = {
+            main_title: "Kuis Pengetahuan",
+            welcome_text: "Uji pengetahuan Anda dengan berbagai mata pelajaran menarik!",
+            geography_title: "Geografi",
+            math_title: "Matematika",
+            english_title: "Bahasa Inggris",
+            footer_text: "Website Kuis Pengetahuan © 2024"
+        };
+
+        const quizData = {
+            geography: [
+                {
+                    question: "Apa ibu kota Indonesia?",
+                    options: ["Bandung", "Jakarta", "Surabaya", "Medan"],
+                    correct: 1
+                },
+                {
+                    question: "Benua apa yang paling luas?",
+                    options: ["Afrika", "Eropa", "Asia", "Amerika"],
+                    correct: 2
+                },
+                {
+                    question: "Negara manakah yang terkenal dengan Menara Eiffel?",
+                    options: ["Italia", "Spanyol", "Prancis", "Jerman"],
+                    correct: 2
+                },
+                {
+                    question: "Berapa jumlah pulau besar di Indonesia?",
+                    options: ["3", "5", "7", "9"],
+                    correct: 1
+                }
+            ],
+            math: [
+                {
+                    question: "25 + 38 = ?",
+                    options: ["61", "63", "65", "67"],
+                    correct: 1
+                },
+                {
+                    question: "9 × 7 = ?",
+                    options: ["56", "63", "72", "81"],
+                    correct: 1
+                },
+                {
+                    question: "100 - 47 = ?",
+                    options: ["43", "47", "53", "57"],
+                    correct: 2
+                },
+                {
+                    question: "144 ÷ 12 = ?",
+                    options: ["10", "11", "12", "13"],
+                    correct: 2
+                }
+            ],
+            english: [
+                {
+                    question: "Apa arti kata 'Teacher' dalam bahasa Indonesia?",
+                    options: ["Dokter", "Guru", "Petani", "Polisi"],
+                    correct: 1
+                },
+                {
+                    question: "Bagaimana cara mengucapkan 'Selamat Pagi' dalam bahasa Inggris?",
+                    options: ["Good Night", "Good Morning", "Good Afternoon", "Good Evening"],
+                    correct: 1
+                },
+                {
+                    question: "Apa bahasa Inggris dari 'Meja'?",
+                    options: ["Chair", "Table", "Desk", "Board"],
+                    correct: 1
+                },
+                {
+                    question: "Apa arti dari 'Beautiful'?",
+                    options: ["Jelek", "Cantik", "Tinggi", "Pendek"],
+                    correct: 1
+                }
+            ]
+        };
+
+        let userAnswers = {
+            geography: {},
+            math: {},
+            english: {}
+        };
+
+        function initQuiz(subject) {
+            const quizContainer = document.getElementById(`${subject}-quiz`);
+            const questions = quizData[subject];
+            
+            quizContainer.innerHTML = questions.map((q, index) => `
+                <div class="question">
+                    <div class="question-text">${index + 1}. ${q.question}</div>
+                    <div class="options">
+                        ${q.options.map((option, optIndex) => `
+                            <div class="option" onclick="selectOption('${subject}', ${index}, ${optIndex})" data-subject="${subject}" data-question="${index}" data-option="${optIndex}">
+                                ${option}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function selectOption(subject, questionIndex, optionIndex) {
+            const options = document.querySelectorAll(`[data-subject="${subject}"][data-question="${questionIndex}"]`);
+            options.forEach(opt => opt.classList.remove('selected'));
+            options[optionIndex].classList.add('selected');
+            userAnswers[subject][questionIndex] = optionIndex;
+        }
+
+        function submitQuiz(subject) {
+            const questions = quizData[subject];
+            let correct = 0;
+            
+            questions.forEach((q, index) => {
+                const options = document.querySelectorAll(`[data-subject="${subject}"][data-question="${index}"]`);
+                const userAnswer = userAnswers[subject][index];
+                
+                options.forEach((opt, optIndex) => {
+                    opt.style.pointerEvents = 'none';
+                    if (optIndex === q.correct) {
+                        opt.classList.add('correct');
+                    } else if (optIndex === userAnswer && userAnswer !== q.correct) {
+                        opt.classList.add('incorrect');
+                    }
+                });
+                
+                if (userAnswer === q.correct) {
+                    correct++;
+                }
+            });
+            
+            const resultDiv = document.getElementById(`${subject}-result`);
+            const percentage = Math.round((correct / questions.length) * 100);
+            resultDiv.innerHTML = `
+                <h4>Hasil Kuis</h4>
+                <p>Anda menjawab ${correct} dari ${questions.length} pertanyaan dengan benar!</p>
+                <p>Skor: ${percentage}%</p>
+            `;
+            resultDiv.classList.add('show');
+            
+            document.querySelector(`#${subject}-page .submit-btn`).disabled = true;
+        }
+
+        function showPage(page) {
+            document.getElementById('home-page').style.display = page === 'home' ? 'block' : 'none';
+            document.getElementById('geography-page').classList.toggle('active', page === 'geography');
+            document.getElementById('math-page').classList.toggle('active', page === 'math');
+            document.getElementById('english-page').classList.toggle('active', page === 'english');
+            
+            if (page !== 'home') {
+                initQuiz(page);
+                userAnswers[page] = {};
+                const resultDiv = document.getElementById(`${page}-result`);
+                resultDiv.classList.remove('show');
+                document.querySelector(`#${page}-page .submit-btn`).disabled = false;
+            }
+            
+            window.scrollTo(0, 0);
+        }
+
+        async function onConfigChange(config) {
+            document.getElementById('main-title').textContent = config.main_title || defaultConfig.main_title;
+            document.getElementById('welcome-text').textContent = config.welcome_text || defaultConfig.welcome_text;
+            document.getElementById('geography-title').textContent = config.geography_title || defaultConfig.geography_title;
+            document.getElementById('math-title').textContent = config.math_title || defaultConfig.math_title;
+            document.getElementById('english-title').textContent = config.english_title || defaultConfig.english_title;
+            document.getElementById('footer-text').textContent = config.footer_text || defaultConfig.footer_text;
+        }
+
+        if (window.elementSdk) {
+            window.elementSdk.init({
+                defaultConfig: defaultConfig,
+                onConfigChange: onConfigChange,
+                mapToCapabilities: (config) => ({
+                    recolorables: [],
+                    borderables: [],
+                    fontEditable: undefined,
+                    fontSizeable: undefined
+                }),
+                mapToEditPanelValues: (config) => new Map([
+                    ["main_title", config.main_title || defaultConfig.main_title],
+                    ["welcome_text", config.welcome_text || defaultConfig.welcome_text],
+                    ["geography_title", config.geography_title || defaultConfig.geography_title],
+                    ["math_title", config.math_title || defaultConfig.math_title],
+                    ["english_title", config.english_title || defaultConfig.english_title],
+                    ["footer_text", config.footer_text || defaultConfig.footer_text]
+                ])
+            });
+        }
+
+        showPage('home');
+    </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a0493a872bdce21',t:'MTc2MzQzODU5My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
